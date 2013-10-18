@@ -126,7 +126,9 @@ class ODFTemplate(object):
                 'svg': (
                     'urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0')
             }
-            tree = etree.parse(StringIO(xml_result))
+            # make sure we use utf-8 parser
+            utf8_parser = etree.XMLParser(encoding='utf-8')
+            tree = etree.fromstring(xml_result, utf8_parser)
             images = tree.findall(
                 './/{%s}image' % MY_NAMESPACES['draw'],
                 namespaces=MY_NAMESPACES)
