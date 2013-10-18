@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
+import setuptools
 from distutils.core import setup
 
 import os, sys
