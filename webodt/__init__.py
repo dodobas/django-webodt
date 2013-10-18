@@ -118,6 +118,29 @@ class ODFTemplate(object):
                 template = preprocess_func(template)
             template = Template(template)
             xml_result = template.render(context)
+
+            # process images
+            MY_NAMESPACES = {
+                'draw': 'urn:oasis:names:tc:opendocument:xmlns:drawing:1.0',
+                'xlink': 'http://www.w3.org/1999/xlink',
+                'svg': (
+                    'urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0')
+            }
+            tree = etree.parse(StringIO(xml_result))
+            images = tree.findall(
+                './/{%s}image' % MY_NAMESPACES['draw'],
+                namespaces=MY_NAMESPACES)
+            for image_el in images:
+                old_image_file = image_el.attrib[
+                    '{%s}href' % MY_NAMESPACES['xlink']
+                ]
+                new_image_file = image_el.getparent().find(
+                    '{%s}title' % MY_NAMESPACES['svg'],
+                    namespaces=MY_NAMESPACES
+                ).text  # get the text of the svg:title element
+                # replace the old image file
+                shutil.copyfile(new_image_file, os.path.join(tmpdir, old_image_file))
+
             filename = os.path.join(tmpdir, f_to_process)
             result_fd = open(filename, 'w')
             result_fd.write(smart_str(xml_result))
